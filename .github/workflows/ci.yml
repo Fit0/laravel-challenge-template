@@ -1,0 +1,24 @@
+name: CI
+on: [push, pull_request]
+jobs:
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Build containers
+          run: docker compose up -d --build
+        - name: Wait for DB
+          run: |
+            until docker compose exec -T db mysqladmin ping -h localhost --silent; do
+              sleep 2
+            done
+        - name: Install dependencies
+          run: docker compose exec -T app composer install --no-interaction
+        - name: Setup .env
+          run: |
+            docker compose exec -T app cp .env.example .env
+            docker compose exec -T app php artisan key:generate
+        - name: Run migrations
+          run: docker compose exec -T app php artisan migrate --force
+        - name: Run tests
+          run: docker compose exec -T app ./vendor/bin/pest --ci
