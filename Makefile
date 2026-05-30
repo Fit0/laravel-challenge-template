@@ -7,12 +7,12 @@ down:
 	docker compose down
 
 build:
-	docker compose up -d --build
+	DOCKER_UID=$(shell id -u) DOCKER_GID=$(shell id -g) docker compose up -d --build
 
 install:
-	docker compose exec app composer create-project laravel/laravel . --prefer-dist
-	docker compose exec app php artisan key:generate
-	docker compose exec app php artisan migrate
+	docker compose exec app composer install --prefer-dist --no-interaction
+	docker compose exec app php artisan key:generate --ansi
+	docker compose exec app php artisan migrate --force
 
 shell:
 	docker compose exec app bash
@@ -31,4 +31,4 @@ fresh:
 
 logs:
 	docker compose logs -f app nginx
-
+	

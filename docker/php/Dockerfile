@@ -15,17 +15,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN groupadd -g ${GID} appgroup \
-    && useradd -u ${UID} -g appgroup -m appuser
+    && useradd -u ${UID} -g appgroup -m appuser \
+    && mkdir -p /var/www \
+    && chown -R appuser:appgroup /var/www
 
 WORKDIR /var/www
 
-FROM base AS dev 
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
-
 USER appuser
 
+# ──────────────────────────────────────────────
+FROM base AS dev
+
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+CMD ["php-fpm"]
+
+# ──────────────────────────────────────────────
 FROM base AS prod
+
 COPY --chown=appuser:appgroup . /var/www
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
-USER appuser
 RUN composer install --no-dev --optimize-autoloader
+CMD ["php-fpm"]
