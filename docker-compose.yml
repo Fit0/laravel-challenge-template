@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: mysql:8.0
+    image: mysql:8.0.28
     container_name: inventory_db
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-inventory_db}
@@ -42,7 +42,7 @@ services:
       - db_data:/var/lib/mysql
     networks: [inventory_net]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -4,8 +4,12 @@ ARG UID=1000
 ARG GID=1000
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git curl zip unzip libpng-dev liboning-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip bcmath opcache \
+        git curl zip unzip \
+        libpng-dev \
+        libonig-dev \
+        libxml2-dev \
+        libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip bcmath opcache gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
